@@ -1,0 +1,16 @@
+[sqlfluff]
+dialect = duckdb
+templater = jinja
+
+# Layout configurations
+max_line_length = 100
+tab_space_size = 4
+
+[sqlfluff:rules]
+capitalisation_policy = upper
+operator_new_lines = after
+
+[sqlfluff:indentation]
+indented_joins = false
+indented_using_on = true
+template_blocks_indent = false
