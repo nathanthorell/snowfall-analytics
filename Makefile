@@ -1,4 +1,4 @@
-.PHONY: venv install lint format clean run
+.PHONY: venv install lint format clean run test
 
 venv:
 	python -m venv .venv
@@ -23,3 +23,6 @@ clean:
 
 run:
 	snowfall
+
+test:
+	pytest tests/ --cov=snowfall_analytics --cov-report=term-missing

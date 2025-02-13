@@ -11,7 +11,7 @@ dependencies = ["httpx>=0.28.1", "pydantic>=2.10.6", "duckdb>=1.2.0"]
 Repository = "https://github.com/nathanthorell/snowfall-analytics"
 
 [project.optional-dependencies]
-dev = ["ruff", "mypy"]
+dev = ["ruff", "mypy", "pytest", "pytest-asyncio", "pytest-cov", "respx"]
 
 [build-system]
 requires = ["setuptools"]
@@ -36,6 +36,10 @@ select = ["E", "F", "I", "B", "W", "C90"]
 indent-style = "space"
 line-ending = "auto"
 quote-style = "double"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
 
 [tool.mypy]
 disallow_untyped_defs = true
