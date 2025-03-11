@@ -1,6 +1,6 @@
 # snowfall-analytics
 
-This project extracts snowfall data from NOAA's Climate Data API, processes it using DuckDB and dbt, and presents analytics through Evidence.dev dashboards.
+This project extracts snowfall data from NOAA's Climate Data API, processes it using DuckDB and dbt, and presents analytics through [Panel](https://panel.holoviz.org/) dashboards.
 More documentation coming as the project develops.
 
 ## Setup
@@ -48,7 +48,7 @@ snowfall-analytics/
 │       └── db.py            # DuckDB operations
 ├── tests/                   # Test files
 ├── dbt_snowfall/            # dbt transformations
-├── dashboards/              # Evidence.dev dashboards
+├── dashboards/              # Panel dashboards
 ├── pyproject.toml           # Python package configuration
 └── Makefile                 # Build and development commands
 ```

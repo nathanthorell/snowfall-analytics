@@ -6,7 +6,7 @@ from typing import List, Optional, Tuple
 import httpx
 from pydantic import BaseModel, Field
 
-from snowfall_analytics.config import StationConfig
+from .config import StationConfig
 
 
 class WeatherStation(BaseModel):

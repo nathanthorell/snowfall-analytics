@@ -42,6 +42,7 @@ asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 
 [tool.mypy]
+mypy_path = "src"
 disallow_untyped_defs = true
 python_version = "3.12"
 warn_return_any = true

@@ -26,19 +26,3 @@ class Config(BaseModel):
     def db_path(self) -> Path:
         """Get the path to the DuckDB database file"""
         return self.data_dir / "snowfall.duckdb"
-
-    @classmethod
-    def from_files(
-        cls,
-        data_dir: Path | str = "data",
-        stations_config: Path | str = "config/config.json",
-    ) -> "Config":
-        """
-        Load config from files
-
-        Args:
-            data_dir: Path to data directory
-            stations_config: Path to stations configuration JSON file
-        """
-        stations = StationConfig.model_validate_json(Path(stations_config).read_text())
-        return cls(data_dir=Path(data_dir), stations=stations)

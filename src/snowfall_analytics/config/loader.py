@@ -9,22 +9,20 @@ def load_config(
 ) -> Config:
     """
     Load configuration from files.
-
-    Args:
-        data_dir: Path to data directory
-        config_path: Path to config.json file (defaults to package config)
-
-    Returns:
-        Loaded configuration
     """
-    # Use default package config if no path provided
-    if config_path is None:
-        config_path = Path(__file__).parent / "config.json"
+    data_dir = Path(data_dir)
+    data_dir.mkdir(parents=True, exist_ok=True)
 
-    # Load and parse station config
-    with open(config_path) as f:
+    if config_path is None:
+        resolved_config_path = data_dir / "config.json"
+    else:
+        resolved_config_path = Path(config_path)
+
+    with open(resolved_config_path) as f:
         raw_config = json.load(f)
 
     stations_config = StationConfig(**raw_config)
 
-    return Config(data_dir=Path(data_dir), stations=stations_config)
+    config = Config(data_dir=data_dir, stations=stations_config)
+
+    return config

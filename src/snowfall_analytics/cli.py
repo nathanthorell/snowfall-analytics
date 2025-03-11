@@ -4,9 +4,9 @@ import asyncio
 import logging
 from pathlib import Path
 
-from snowfall_analytics.config import load_config
-from snowfall_analytics.db import WeatherDatabase
-from snowfall_analytics.noaa import NOAAClient
+from .config import Config, load_config
+from .db import WeatherDatabase
+from .noaa import NOAAClient
 
 # Configure logging
 logging.basicConfig(
@@ -16,11 +16,14 @@ logger = logging.getLogger(__name__)
 
 
 async def fetch_station_data(
-    station_id: str, client: NOAAClient, db: WeatherDatabase, debug: bool = False
+    station_id: str,
+    client: NOAAClient,
+    db: WeatherDatabase,
+    config: Config,
+    debug: bool = False,
 ) -> None:
     """Fetch and store data for a single station"""
     try:
-        config = load_config()
         weather_data, station_info = await client.get_station_data(
             station_id, config.stations.start_date, config.stations.end_date
         )
@@ -44,7 +47,7 @@ async def fetch_station_data(
                     print("-" * 40)
 
     except Exception as e:
-        logger.error(f"Error processing station {station_id}: {str(e)}")
+        logger.error(f"Error processing station {station_id}: {str(e)}", exc_info=True)
         raise
 
 
@@ -55,31 +58,47 @@ def main() -> None:
     )
     parser.add_argument("--debug", action="store_true", help="Show detailed debug information")
     parser.add_argument(
-        "--data-dir", type=Path, default="data", help="Directory for data storage"
+        "--data-dir", type=Path, default=Path("data"), help="Directory for database storage"
+    )
+    parser.add_argument(
+        "--config",
+        type=Path,
+        help="Path to config file (defaults to data-dir/config.json)",
+        default=None,
+        required=False,
     )
 
     args = parser.parse_args()
 
     try:
-        args.data_dir.mkdir(parents=True, exist_ok=True)
-
         config = load_config(data_dir=args.data_dir)
         stations = [args.station] if args.station else config.stations.stations
+
+        if not stations:
+            logger.error("No stations specified in config or command line")
+            exit(1)
 
         with WeatherDatabase(config.db_path) as db:
 
             async def run() -> None:
                 async with NOAAClient() as client:
-                    await asyncio.gather(
-                        *(fetch_station_data(s, client, db, args.debug) for s in stations)
-                    )
+                    try:
+                        await asyncio.gather(
+                            *(
+                                fetch_station_data(s, client, db, config, args.debug)
+                                for s in stations
+                            )
+                        )
+                    except Exception as e:
+                        logger.error(f"Error in run: {str(e)}", exc_info=True)
+                        raise
 
             asyncio.run(run())
 
         logger.info("Data fetch completed successfully")
 
     except Exception as e:
-        logger.error(f"Error during data fetch: {str(e)}")
+        logger.error(f"Error during data fetch: {str(e)}", exc_info=True)
         exit(1)
 
 

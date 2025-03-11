@@ -4,8 +4,8 @@ from typing import List
 
 import duckdb
 
-from snowfall_analytics.noaa import WeatherData, WeatherStation
-from snowfall_analytics.sql_loader import SQLLoader
+from .noaa import WeatherData, WeatherStation
+from .sql_loader import SQLLoader
 
 
 class WeatherDatabase:
