@@ -4,6 +4,8 @@ import asyncio
 import logging
 from pathlib import Path
 
+import httpcore
+
 from .config import Config, load_config
 from .db import WeatherDatabase
 from .noaa import NOAAClient
@@ -23,32 +25,49 @@ async def fetch_station_data(
     debug: bool = False,
 ) -> None:
     """Fetch and store data for a single station"""
-    try:
-        weather_data, station_info = await client.get_station_data(
-            station_id, config.stations.start_date, config.stations.end_date
-        )
+    max_retries = 3
+    retry_count = 0
 
-        if station_info:
-            db.upsert_station(station_info)
-            logger.info(f"Upserted station info for {station_id}")
+    while retry_count < max_retries:
+        try:
+            weather_data, station_info = await client.get_station_data(
+                station_id, config.stations.start_date, config.stations.end_date
+            )
 
-        if weather_data:
-            db.upsert_weather_data(weather_data)
-            logger.info(f"Upserted {len(weather_data)} records for {station_id}")
+            if station_info:
+                db.upsert_station(station_info)
+                logger.info(f"Upserted station info for {station_id}")
 
-            if debug:
-                print(f"\nSample data for {station_id}:")
-                for record in weather_data[:5]:  # Show first 5 records
-                    print(f"Date: {record.date}")
-                    print(f"Snowfall: {record.snowfall or 'N/A'}")
-                    print(f"Snow Depth: {record.snow_depth or 'N/A'}")
-                    print(f"Temp Max: {record.temp_max or 'N/A'}")
-                    print(f"Temp Min: {record.temp_min or 'N/A'}")
-                    print("-" * 40)
+            if weather_data:
+                db.upsert_weather_data(weather_data)
+                logger.info(f"Upserted {len(weather_data)} records for {station_id}")
 
-    except Exception as e:
-        logger.error(f"Error processing station {station_id}: {str(e)}", exc_info=True)
-        raise
+                if debug:
+                    print(f"\nSample data for {station_id}:")
+                    for record in weather_data[:5]:  # Show first 5 records
+                        print(f"Date: {record.date}")
+                        print(f"Snowfall: {record.snowfall or 'N/A'}")
+                        print(f"Snow Depth: {record.snow_depth or 'N/A'}")
+                        print(f"Temp Max: {record.temp_max or 'N/A'}")
+                        print(f"Temp Min: {record.temp_min or 'N/A'}")
+                        print("-" * 40)
+            return
+        except httpcore.ReadError as e:
+            retry_count += 1
+            if retry_count >= max_retries:
+                e_str = f"Error processing station {station_id} after {max_retries} retries"
+                logger.error(f"{e_str}: {str(e)}")
+                raise
+
+            wait_time = 2**retry_count  # backoff
+            retry_str = f"ReadError for {station_id}, retrying in {wait_time}s"
+            attempt_str = f"(attempt {retry_count}/{max_retries})"
+            logger.warning(f"{retry_str} {attempt_str}")
+            await asyncio.sleep(wait_time)
+
+        except Exception as e:
+            logger.error(f"Error processing station {station_id}: {str(e)}", exc_info=True)
+            raise
 
 
 def main() -> None:

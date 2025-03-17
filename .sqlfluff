@@ -1,6 +1,6 @@
 [sqlfluff]
 dialect = duckdb
-templater = jinja
+templater = dbt
 
 # Layout configurations
 max_line_length = 100

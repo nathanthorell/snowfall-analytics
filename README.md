@@ -26,6 +26,12 @@ More documentation coming as the project develops.
     source .venv/bin/activate
     ```
 
+### Configuration
+
+Edit `./data/config.json`
+
+To find additional weather stations of interest use the [NCEI Station Locator](https://www.ncdc.noaa.gov/cdo-web/datatools/findstation)
+
 ## Common Commands
 
 ```bash
@@ -39,16 +45,20 @@ make all      # Run format, lint, and test
 
 ```text
 snowfall-analytics/
-├── src/
-│   └── snowfall_analytics/
-│       ├── cli.py           # Command-line interface
-│       ├── config.py        # Configuration management
-│       ├── noaa.py          # NOAA API client and models
-│       ├── sql_loader.py    # loads dir of sql files
-│       └── db.py            # DuckDB operations
-├── tests/                   # Test files
-├── dbt_snowfall/            # dbt transformations
-├── dashboards/              # Panel dashboards
-├── pyproject.toml           # Python package configuration
-└── Makefile                 # Build and development commands
+├── snowfall_data_extract/           # Data extraction package
+│   ├── cli.py                       # Command-line interface
+│   ├── config/                      # Configuration management
+│   │   ├── loader.py                # Config loading logic
+│   │   └── models.py                # Config data models
+│   ├── sql/                         # SQL files
+│   │   ├── schema/                  # Database schema definitions
+│   │   └── queries/                 # SQL queries for operations
+│   ├── noaa.py                      # NOAA API client and models
+│   ├── sql_loader.py                # loads dir of sql files
+│   └── db.py                        # DuckDB operations
+├── snowfall_dbt/                    # dbt transformations package
+├── snowfall_panel/                  # Panel dashboards package
+├── tests/                           # Test files
+├── pyproject.toml                   # Python package configuration
+└── Makefile                         # Build and development commands
 ```

@@ -5,20 +5,32 @@ description = "NOAA snowfall data analytics pipeline"
 license = { file = "LICENSE" }
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = ["httpx>=0.28.1", "pydantic>=2.10.6", "duckdb>=1.2.0"]
+dependencies = ["httpx", "pydantic", "duckdb", "dbt-duckdb", "panel", "pandas"]
 
 [project.urls]
 Repository = "https://github.com/nathanthorell/snowfall-analytics"
 
 [project.optional-dependencies]
-dev = ["ruff", "mypy", "pytest", "pytest-asyncio", "pytest-cov", "respx"]
+dev = [
+    "ruff",
+    "mypy",
+    "pytest",
+    "pytest-asyncio",
+    "pytest-cov",
+    "respx",
+    "sqlfluff",
+    "sqlfluff-templater-dbt"
+]
 
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project.scripts]
-snowfall = "snowfall_analytics.cli:main"
+snowfall_data_extract = "snowfall_data_extract.cli:main"
+
+[tool.setuptools]
+py-modules = ["snowfall_data_extract"]
 
 [tool.setuptools.package-data]
 "snowfall_analytics" = ["sql/**/*.sql"]
@@ -43,19 +55,23 @@ asyncio_default_fixture_loop_scope = "function"
 
 [tool.mypy]
 mypy_path = "src"
-disallow_untyped_defs = true
 python_version = "3.12"
-warn_return_any = true
 strict = true
-disallow_incomplete_defs = true
 check_untyped_defs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
 disallow_untyped_decorators = true
 no_implicit_optional = true
 warn_redundant_casts = true
 warn_unused_ignores = true
+warn_unused_config = true
 warn_no_return = true
 warn_unreachable = true
+warn_return_any = true
 
 [tool.pyright]
 venvPath = "."
 venv = ".venv"
+include = ["snowfall_data_extract", "snowfall_dbt", "snowfall_panel"]
+exclude = ["build", "dist", "**/__pycache__"]
+typeCheckingMode = "strict"
