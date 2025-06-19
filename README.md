@@ -7,8 +7,21 @@ More documentation coming as the project develops.
 
 ### Prerequisites
 
-- Python 3.12+
-- Make
+This project is designed with uv. Install uv:
+
+- From a POSIX shell, run:
+
+    ```bash
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    ```
+
+- Or using Windows Powershell:
+
+    ```powershell
+    powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+    ```
+
+Alternatively, see the [uv installation docs](https://docs.astral.sh/uv/getting-started/installation/) for other installation methods.
 
 ### Initial Setup
 
@@ -22,8 +35,7 @@ More documentation coming as the project develops.
 1. Create and install the development environment:
 
     ```bash
-    make install
-    source .venv/bin/activate
+    uv sync
     ```
 
 ### Configuration
@@ -35,10 +47,17 @@ To find additional weather stations of interest use the [NCEI Station Locator](h
 ## Common Commands
 
 ```bash
+# Using uv (recommended)
+uv run ruff check .           # Run code quality checks
+uv run ruff format .          # Format code
+uv run mypy .                 # Type checking
+uv run pytest                 # Run tests
+uv run snowfall_data_extract  # Run the data extraction tool
+
+# Alternatively with make
 make lint     # Run code quality checks
 make format   # Format code
 make test     # Run tests
-make all      # Run format, lint, and test
 ```
 
 ## Project Structure
